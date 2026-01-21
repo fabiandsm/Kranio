@@ -1,18 +1,19 @@
-# Apache Airflow – Primer DAG Funcional
+# Apache Airflow – DAGs Funcionales y Automatización de Pipelines
 
-Este repositorio contiene la implementación de un **DAG funcional en Apache Airflow**, desarrollado como ejercicio introductorio para comprender la creación, ejecución y monitoreo de workflows basados en **grafos dirigidos acíclicos (DAGs)**.
+Este repositorio contiene la implementación de **DAGs funcionales en Apache Airflow**, desarrollados como ejercicios prácticos para comprender la creación, ejecución y monitoreo de workflows basados en **grafos dirigidos acíclicos (DAGs)**.
 
-El proyecto fue desplegado utilizando **Apache Airflow 2.9.3 sobre Docker en Windows**, siguiendo buenas prácticas de configuración y diagnóstico.
+El proyecto fue desplegado utilizando **Apache Airflow 2.9.3 sobre Docker en Windows**, siguiendo buenas prácticas de configuración, diagnóstico y orquestación de pipelines.
 
 ---
 
 ## 📌 Objetivo del ejercicio
 
 - Instalar y configurar Apache Airflow.
-- Crear un DAG simple con múltiples tareas.
-- Definir dependencias entre tareas (workflow).
-- Ejecutar y monitorear el DAG desde la interfaz web.
+- Crear DAGs con múltiples tareas.
+- Definir dependencias simples y complejas entre tareas.
+- Ejecutar y monitorear DAGs desde la interfaz web.
 - Verificar logs de ejecución.
+- Comprender el uso de operadores básicos de Airflow.
 
 ---
 
@@ -31,23 +32,24 @@ El proyecto fue desplegado utilizando **Apache Airflow 2.9.3 sobre Docker en Win
 ```
 airflow_docker/
 ├── dags/
-│   └── saludo_diario.py
-├── docker-compose.yml
-└── README.md
+│   ├── saludo_diario.py
+│   ├── dependencias_complejas.py
+│   └── README.md
+└── docker-compose.yml
+
 ```
 
 ---
 
-## 🚀 Descripción del DAG
+## 🚀 DAG 1: Saludo Diario
 
-### DAG: `saludo_diario`
+### Descripción
 
+DAG introductorio que permite validar la correcta instalación y funcionamiento de Apache Airflow.
+
+- **DAG ID**: `saludo_diario`
 - **Schedule**: `@daily`
 - **Catchup**: deshabilitado
-- **Tareas**:
-  1. `tarea_bash`: ejecuta un comando Bash.
-  2. `tarea_python`: ejecuta una función Python.
-  3. `tarea_esperar`: simula procesamiento con un `sleep`.
 
 ### Flujo de ejecución
 
@@ -55,83 +57,94 @@ airflow_docker/
 tarea_bash → tarea_python → tarea_esperar
 ```
 
+### Resultado esperado
+
+- Ejecución secuencial de las tareas.
+- Visualización correcta del flujo en Graph View.
+- Logs accesibles desde la interfaz web.
+
 ---
 
-## 🧩 Código del DAG
+## 🧩 DAG 2: Pipeline de Ventas con Dependencias Complejas
 
-```python
-from airflow import DAG
-from airflow.operators.bash import BashOperator
-from airflow.operators.python import PythonOperator
-from datetime import datetime
+Como parte del ejercicio de automatización, se implementó un DAG que modela un **pipeline ETL de ventas**, incorporando ejecución paralela y sincronización explícita entre tareas.
 
-def saludar():
-    print("¡Hola desde Airflow!")
-    return "Saludo completado"
+- **DAG ID**: `pipeline_ventas_complejo`
+- **Schedule**: `@daily`
+- **Catchup**: deshabilitado
 
-with DAG(
-    dag_id="saludo_diario",
-    start_date=datetime(2024, 1, 1),
-    schedule="@daily",
-    catchup=False,
-    tags=["ejemplo", "saludo"],
-) as dag:
+---
 
-    tarea_bash = BashOperator(
-        task_id="tarea_bash",
-        bash_command='echo "Ejecutando tarea bash"'
-    )
+### 1️⃣ Visualización del grafo de dependencias
 
-    tarea_python = PythonOperator(
-        task_id="tarea_python",
-        python_callable=saludar
-    )
+El DAG fue visualizado utilizando **Graph View** en la interfaz web de Apache Airflow, permitiendo verificar visualmente el flujo de ejecución y las dependencias entre tareas.
 
-    tarea_esperar = BashOperator(
-        task_id="tarea_esperar",
-        bash_command="sleep 5"
-    )
+**Flujo verificado:**
 
-    tarea_bash >> tarea_python >> tarea_esperar
+```
+preparar_entorno → [extraer_api_ventas, extraer_db_productos]
+extraer_api_ventas → validar_datos_api → transformar_ventas ↘
+extraer_db_productos → validar_datos_db → transformar_productos ↘
+                                   join_ventas_productos
+                                             ↓
+                                    cargar_data_warehouse
+                                             ↓
+                                   enviar_reporte_ejecucion
 ```
 
+El grafo confirma ejecución paralela en las etapas de extracción y validación, seguida de una sincronización explícita en la etapa de *join* antes de la carga final.
+
 ---
 
-## ▶️ Ejecución del proyecto
+### 2️⃣ Pruebas de ejecución del DAG
 
-1. Levantar los servicios:
-   ```bash
-   docker compose up -d
-   ```
+Para validar el correcto funcionamiento del pipeline se realizaron los siguientes escenarios:
 
-2. Acceder a la interfaz web:
-   ```
-   http://localhost:8080
-   ```
+**Prueba del DAG sin scheduler:**
+```bash
+airflow dags test pipeline_ventas_complejo 2024-01-01
+```
 
-3. Activar el DAG `saludo_diario`.
+**Ejecución manual del DAG:**
+```bash
+airflow dags trigger pipeline_ventas_complejo
+```
 
-4. Ejecutar manualmente con **Trigger DAG**.
+**Revisión de logs de la tarea final:**
+```bash
+airflow tasks logs pipeline_ventas_complejo enviar_reporte_ejecucion 2024-01-01
+```
 
-5. Revisar los logs de la tarea `tarea_python` para verificar la salida:
-   ```
-   ¡Hola desde Airflow!
-   ```
+Los logs confirman que el pipeline se ejecuta correctamente hasta la generación del reporte final.
+
+---
+
+### 3️⃣ Verificación conceptual
+
+**a) Elección entre PythonOperator y BashOperator**
+
+El `PythonOperator` se utiliza cuando la tarea requiere lógica de negocio, procesamiento de datos o validaciones mediante código Python.  
+El `BashOperator` es más adecuado para ejecutar comandos del sistema operativo o tareas simples de preparación del entorno, como la creación de directorios o ejecución de scripts shell.
+
+**b) Ventajas de definir dependencias explícitas**
+
+Definir dependencias explícitas permite ejecutar tareas en paralelo, representar claramente el flujo mediante un grafo acíclico, evitar ejecuciones incorrectas y facilitar el monitoreo, debugging y mantenimiento del pipeline.
 
 ---
 
 ## ✅ Resultados
 
-- DAG cargado correctamente sin errores.
-- Ejecución exitosa de todas las tareas.
-- Validación del uso de grafos y workflows.
-- Correcto uso de Airflow en entorno Docker.
+- DAGs cargados correctamente sin errores.
+- Ejecuciones exitosas de todas las tareas.
+- Dependencias simples y complejas correctamente definidas.
+- Visualización y monitoreo desde Airflow Web UI.
+- Logs accesibles para validación de ejecución.
 
 ---
 
 ## 🧠 Conclusiones
 
-Este ejercicio permite comprender los conceptos fundamentales de Apache Airflow, incluyendo la definición de DAGs, el uso de operadores, la gestión de dependencias y la ejecución de workflows en un entorno productivo.
+El desarrollo de estos DAGs permitió consolidar los conceptos fundamentales de Apache Airflow, incluyendo la definición de workflows, uso de operadores, paralelismo, dependencias complejas y monitoreo de ejecuciones en un entorno Docker.
 
 ---
 
