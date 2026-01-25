@@ -34,9 +34,10 @@ airflow_docker/
 ├── dags/
 │   ├── saludo_diario.py
 │   ├── dependencias_complejas.py
+│   ├── operadores_sensores.py
+│   ├── operadores_sensores.png
 │   └── README.md
 └── docker-compose.yml
-
 ```
 
 ---
@@ -147,7 +148,36 @@ Definir dependencias explícitas permite ejecutar tareas en paralelo, representa
 El desarrollo de estos DAGs permitió consolidar los conceptos fundamentales de Apache Airflow, incluyendo la definición de workflows, uso de operadores, paralelismo, dependencias complejas y monitoreo de ejecuciones en un entorno Docker.
 
 ---
+## 📂 DAG 3: Pipeline con Sensores y Operador Personalizado
 
+Este DAG incorpora **sensores y operadores personalizados**, simulando un escenario real de ingesta de datos dependiente de eventos externos.
+
+- **DAG ID**: `pipeline_con_sensores_y_operador_custom`
+- **Schedule**: `@hourly` (ejecutado manualmente durante pruebas)
+- **Catchup**: deshabilitado
+
+### Flujo del DAG
+```
+esperar_archivo_datos
+        ↓
+validar_datos_ventas
+        ↓
+procesar_datos_ventas
+        ↓
+generar_reporte
+        ↓
+limpiar_archivos
+```
+
+---
+
+## 🧠 Verificación conceptual
+
+**¿Cuándo usar sensores?**  
+Se utilizan sensores cuando la ejecución de un pipeline depende de una condición externa, como la llegada de archivos o la disponibilidad de datos.
+
+**¿Ventajas de operadores personalizados?**  
+Permiten encapsular lógica de negocio específica, mejorar la reutilización de código y mantener DAGs más limpios.
 ## 📌 Autor
 
 **Fabián Díaz**  
