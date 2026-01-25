@@ -34,6 +34,7 @@ airflow_docker/
 ├── dags/
 │   ├── saludo_diario.py
 │   ├── dependencias_complejas.py
+│   ├── flujo_saludo_diario.png
 │   ├── operadores_sensores.py
 │   ├── operadores_sensores.png
 │   └── README.md
