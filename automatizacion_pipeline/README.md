@@ -37,6 +37,8 @@ airflow_docker/
 │   ├── flujo_saludo_diario.png
 │   ├── operadores_sensores.py
 │   ├── operadores_sensores.png
+│   ├── monitoreo_alertas.py
+│   ├── monitoreo_alertas.png
 │   └── README.md
 └── docker-compose.yml
 ```
@@ -134,7 +136,7 @@ Definir dependencias explícitas permite ejecutar tareas en paralelo, representa
 
 ---
 
-## ✅ Resultados
+### ✅ Resultados
 
 - DAGs cargados correctamente sin errores.
 - Ejecuciones exitosas de todas las tareas.
@@ -144,7 +146,7 @@ Definir dependencias explícitas permite ejecutar tareas en paralelo, representa
 
 ---
 
-## 🧠 Conclusiones
+### 🧠 Conclusiones
 
 El desarrollo de estos DAGs permitió consolidar los conceptos fundamentales de Apache Airflow, incluyendo la definición de workflows, uso de operadores, paralelismo, dependencias complejas y monitoreo de ejecuciones en un entorno Docker.
 
@@ -172,13 +174,87 @@ limpiar_archivos
 
 ---
 
-## 🧠 Verificación conceptual
+### 🧠 Verificación conceptual
 
 **¿Cuándo usar sensores?**  
 Se utilizan sensores cuando la ejecución de un pipeline depende de una condición externa, como la llegada de archivos o la disponibilidad de datos.
 
 **¿Ventajas de operadores personalizados?**  
 Permiten encapsular lógica de negocio específica, mejorar la reutilización de código y mantener DAGs más limpios.
+
+## DAG 4: Pipeline con Monitoreo y Verificación Conceptual
+
+Este DAG está orientado a monitoreo avanzado, métricas y alertas, simulando un pipeline productivo donde no solo importa ejecutar tareas, sino medir su comportamiento y reaccionar ante incidentes.
+
+DAG ID: pipeline_monitorado
+
+Schedule: ejecución manual (durante pruebas)
+
+Catchup: deshabilitado
+
+### Flujo del DAG
+```
+procesar_datos
+        ↓
+validar_metricas
+        ↓
+notificar_exito
+        ↓
+verificar_sla
+```
+
+---
+
+
+## 🧠 Verificación conceptual
+🔹 ¿Qué métricas son más importantes para monitorear en un pipeline de datos?
+
+Las métricas clave dependen del objetivo del pipeline, pero en un entorno productivo las más relevantes suelen ser:
+
+Estado de las tareas (success / failed / retry)
+Permite detectar fallos operacionales de forma inmediata.
+
+Duración de ejecución por tarea y por DAG
+Ayuda a identificar cuellos de botella y degradaciones de rendimiento.
+
+Cumplimiento de SLA
+Fundamental para pipelines críticos que alimentan procesos de negocio o reporting.
+
+Volumen de datos procesados
+Permite detectar anomalías (datos incompletos, duplicados o caídas abruptas).
+
+Errores funcionales o de validación
+Indicadores de problemas en la calidad de los datos.
+
+🔹 ¿Cómo decidir entre enviar alertas por Email vs Slack vs SMS?
+
+La elección del canal de alertas debe basarse en criticidad, urgencia y contexto operativo:
+
+Canal	Cuándo usarlo
+Email	Alertas informativas, reportes de éxito, fallos no críticos o resúmenes diarios.
+Slack / Teams	Incidentes operativos que requieren atención rápida del equipo técnico. Ideal para entornos colaborativos.
+SMS	Fallos críticos en pipelines productivos, SLA incumplidos o eventos que requieren acción inmediata fuera del horario laboral.
+
+Buena práctica:
+Combinar canales según severidad (por ejemplo, email para éxito, Slack para warnings y SMS para errores críticos).
+
+### ✅ Resultados del DAG 4
+
+Pipeline ejecutado correctamente.
+
+Métricas registradas y evaluadas.
+
+Alertas configuradas sin interrumpir el flujo principal.
+
+Separación clara entre lógica de negocio y monitoreo.
+
+### 🧠 Conclusión general
+
+Con este cuarto DAG se completa un enfoque integral de Apache Airflow:
+
+Orquestación básica, Dependencias complejas, Sensores y operadores personalizados, Monitoreo, métricas y alertas
+
+
 ## 📌 Autor
 
 **Fabián Díaz**  
