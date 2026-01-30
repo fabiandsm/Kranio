@@ -2,9 +2,12 @@ name: CI - Validación DAGs Airflow
 
 on:
   push:
-    branches: [ "main", "feature-*" ]
+    branches:
+      - main
+      - feature-*
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
   validate-dags:
@@ -33,14 +36,16 @@ jobs:
       - name: Create airflow folders
         run: |
           mkdir -p $AIRFLOW_HOME/dags
-          cp automatizacion_pipeline/*.py $AIRFLOW_HOME/dags || true
 
       - name: Validate DAGs (import test)
         run: |
           python - <<EOF
           from airflow.models import DagBag
 
-          dagbag = DagBag(dag_folder="${{ github.workspace }}/automatizacion_pipeline", include_examples=False)
+          dagbag = DagBag(
+              dag_folder="airflow_project/dags",
+              include_examples=False
+          )
 
           if dagbag.import_errors:
               print("❌ Errores al importar DAGs:")
@@ -50,3 +55,4 @@ jobs:
 
           print(f"✅ DAGs cargados correctamente: {len(dagbag.dags)}")
           EOF
+
