@@ -1,0 +1,51 @@
+name: Test Airflow DAGs
+
+on:
+  push:
+    paths:
+      - dags/**
+      - tests/**
+      - docker-compose.yml
+  pull_request:
+    paths:
+      - dags/**
+      - tests/**
+      - docker-compose.yml
+
+jobs:
+  test-dags:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Start Airflow services
+        run: |
+          docker compose up -d
+          sleep 20
+
+      - name: Run DAG tests
+        run: |
+          docker compose exec -T airflow-webserver pytest tests/dags -v
+
+      - name: Validate DAG loading
+        run: |
+          docker compose exec -T airflow-webserver python - << 'EOF'
+          from airflow.models import DagBag
+          dagbag = DagBag(dag_folder="dags", include_examples=False)
+          if dagbag.import_errors:
+              print("DAG import errors:")
+              for dag, err in dagbag.import_errors.items():
+                  print(dag, err)
+              raise SystemExit(1)
+          print("All DAGs loaded successfully")
+          EOF
+
+      - name: Shutdown Airflow
+        if: always()
+        run: docker compose down
+
