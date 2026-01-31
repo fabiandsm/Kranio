@@ -72,7 +72,7 @@ los siguientes archivos:
 
 ---
 
-## 🧩 Arquitectura como Código (Opcional)
+## 🧩 Arquitectura como Código 
 
 El archivo ubicado en `src/disenio_arquitectura_completa.py` representa
 la arquitectura como una estructura de datos en Python. Este archivo no
