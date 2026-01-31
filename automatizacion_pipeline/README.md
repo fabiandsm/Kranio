@@ -254,6 +254,26 @@ Con este cuarto DAG se completa un enfoque integral de Apache Airflow:
 
 Orquestación básica, Dependencias complejas, Sensores y operadores personalizados, Monitoreo, métricas y alertas
 
+---
+
+## Verificación conceptual – Manejo de errores en pipelines
+
+### ¿Qué diferencia hay entre un pipeline que falla silenciosamente y uno con buen manejo de errores?
+
+Un pipeline que falla silenciosamente no registra ni comunica los errores ocurridos durante su ejecución, lo que puede provocar que el flujo continúe procesando datos inválidos o incompletos. Esto dificulta el monitoreo, el debugging y la detección de fallos, aumentando el riesgo de generar resultados incorrectos sin que el problema sea evidente.
+
+En contraste, un pipeline con buen manejo de errores detecta y captura explícitamente las excepciones, registra información clara sobre el fallo y detiene la ejecución cuando un error crítico compromete la calidad del dato. Este enfoque mejora la confiabilidad, trazabilidad y mantenibilidad del pipeline.
+
+---
+
+### ¿Cómo decidir cuándo reintentar versus abortar una ejecución?
+
+La decisión depende del tipo de error y su impacto en los datos:
+
+- **Reintentar la ejecución** es adecuado cuando el error es transitorio, como fallas temporales de red, timeouts de APIs externas o problemas momentáneos de infraestructura.
+- **Abortar la ejecución** es necesario cuando el error es lógico o crítico, como fallas de validación, esquemas incorrectos o datos corruptos, ya que continuar podría propagar datos inválidos a etapas posteriores.
+
+Un pipeline robusto debe aplicar reintentos únicamente a errores transitorios y detener la ejecución ante errores que afecten la calidad o consistencia de los datos.
 
 ## 📌 Autor
 
