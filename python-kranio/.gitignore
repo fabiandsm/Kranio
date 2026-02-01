@@ -1,0 +1,9 @@
+analisis_datos_env/
+__pycache__/
+*.db
+*.xlsx
+*.csv
+*.json
+*.png
+__pycache__/
+*.ipynb_checkpoints/

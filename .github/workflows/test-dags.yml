@@ -1,0 +1,58 @@
+name: CI - Validación DAGs Airflow
+
+on:
+  push:
+    branches:
+      - main
+      - feature-*
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate-dags:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+
+      - name: Install Apache Airflow
+        run: |
+          python -m pip install --upgrade pip
+          AIRFLOW_VERSION=2.8.1
+          PYTHON_VERSION=3.10
+          CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"
+          pip install "apache-airflow==${AIRFLOW_VERSION}" --constraint "${CONSTRAINT_URL}"
+
+      - name: Set AIRFLOW_HOME
+        run: echo "AIRFLOW_HOME=${{ github.workspace }}/airflow" >> $GITHUB_ENV
+
+      - name: Create airflow folders
+        run: |
+          mkdir -p $AIRFLOW_HOME/dags
+
+      - name: Validate DAGs (import test)
+        run: |
+          python - <<EOF
+          from airflow.models import DagBag
+
+          dagbag = DagBag(
+              dag_folder="airflow_project/dags",
+              include_examples=False
+          )
+
+          if dagbag.import_errors:
+              print("❌ Errores al importar DAGs:")
+              for dag, err in dagbag.import_errors.items():
+                  print(f"{dag}: {err}")
+              raise SystemExit(1)
+
+          print(f"✅ DAGs cargados correctamente: {len(dagbag.dags)}")
+          EOF
+
