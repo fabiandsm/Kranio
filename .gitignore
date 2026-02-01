@@ -1,0 +1,31 @@
+# Entornos virtuales
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Airflow
+airflow.db
+airflow_project/airflow.db
+airflow_project/logs/
+airflow_project/.airflow_test/
+airflow_project/airflow_env/
+
+# Test cache
+.pytest_cache/
+
+# VS Code
+.vscode/
+
+# Datos locales
+*.parquet
+
+# OS
+.DS_Store
+Thumbs.db
+# Bases de datos locales
+*.db

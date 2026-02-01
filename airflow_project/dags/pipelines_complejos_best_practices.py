@@ -1,68 +1,81 @@
 from airflow import DAG
-from airflow.decorators import task
+from airflow.operators.python import PythonOperator, BranchPythonOperator
+from airflow.operators.empty import EmptyOperator
 from airflow.utils.task_group import TaskGroup
-from airflow.utils.trigger_rule import TriggerRule
-from airflow.utils.dates import days_ago
+from datetime import datetime, timedelta
 import random
-import logging
 
-logger = logging.getLogger(__name__)
+
+def validar_calidad_datos(**context):
+    calidad = random.choice(["alta", "media", "baja"])
+    context["ti"].xcom_push(key="calidad", value=calidad)
+    return calidad
+
+
+def decidir_procesamiento(**context):
+    calidad = context["ti"].xcom_pull(
+        task_ids="validar_calidad", key="calidad"
+    )
+
+    if calidad == "alta":
+        return "procesamiento_rapido"
+    else:
+        return "procesamiento_completo"
+
+
+def procesamiento_rapido():
+    return "Procesado rápido"
+
+
+def procesamiento_completo():
+    return "Procesado completo"
+
 
 with DAG(
     dag_id="pipeline_avanzado_complejo",
-    start_date=days_ago(1),
-    schedule=None,
+    description="Pipeline con patrones avanzados y best practices",
+    schedule="@daily",
+    start_date=datetime(2024, 1, 1),
     catchup=False,
-    tags=["best_practices", "branching", "taskflow"],
+    default_args={
+        "retries": 2,
+        "retry_delay": timedelta(minutes=5),
+        "execution_timeout": timedelta(hours=1),
+    },
 ) as dag:
 
-    @task
-    def inicio():
-        logger.info("Inicio del pipeline")
-        return "inicio_ok"
+    inicio = EmptyOperator(task_id="inicio")
 
-    @task
-    def validar_calidad():
-        calidad = random.choice(["alta", "media", "baja"])
-        logger.info(f"Calidad detectada: {calidad}")
-        return calidad
+    validar = PythonOperator(
+        task_id="validar_calidad",
+        python_callable=validar_calidad_datos,
+    )
 
-    @task.branch
-    def decidir_ruta(calidad):
-        if calidad == "alta":
-            return "procesamiento.procesamiento_rapido"
-        elif calidad == "media":
-            return "procesamiento.procesamiento_completo"
-        else:
-            return "procesamiento.procesamiento_pesado"
+    decidir = BranchPythonOperator(
+        task_id="decidir_ruta",
+        python_callable=decidir_procesamiento,
+    )
 
-    with TaskGroup("procesamiento") as procesamiento:
+    ruta_rapida = PythonOperator(
+        task_id="procesamiento_rapido",
+        python_callable=procesamiento_rapido,
+    )
 
-        @task
-        def procesamiento_rapido():
-            logger.info("Procesamiento rápido")
-            return "rapido_ok"
+    ruta_completa = PythonOperator(
+        task_id="procesamiento_completo",
+        python_callable=procesamiento_completo,
+    )
 
-        @task
-        def procesamiento_completo():
-            logger.info("Procesamiento completo")
-            return "completo_ok"
+    with TaskGroup("procesamiento_pesado") as procesamiento_group:
+        paso1 = EmptyOperator(task_id="paso1")
+        paso2 = EmptyOperator(task_id="paso2")
+        paso3 = EmptyOperator(task_id="paso3")
 
-        @task
-        def procesamiento_pesado():
-            logger.info("Procesamiento pesado")
-            return "pesado_ok"
+        paso1 >> paso2 >> paso3
 
-        procesamiento_rapido()
-        procesamiento_completo()
-        procesamiento_pesado()
+    union = EmptyOperator(task_id="union_rutas")
+    fin = EmptyOperator(task_id="fin")
 
-    @task(trigger_rule=TriggerRule.NONE_FAILED_MIN_ONE_SUCCESS)
-    def fin():
-        logger.info("Fin del pipeline")
-
-    inicio_task = inicio()
-    calidad = validar_calidad()
-    ruta = decidir_ruta(calidad)
-
-    inicio_task >> calidad >> ruta >> procesamiento >> fin()
+    inicio >> validar >> decidir
+    decidir >> [ruta_rapida, ruta_completa, procesamiento_group]
+    [ruta_rapida, ruta_completa, procesamiento_group] >> union >> fin

@@ -1,0 +1,70 @@
+name: Airflow CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  AIRFLOW_VERSION: 2.7.0
+  PYTHON_VERSION: '3.9'
+  AIRFLOW_HOME: /home/runner/airflow
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install "apache-airflow==${{ env.AIRFLOW_VERSION }}" \
+            --constraint "https://raw.githubusercontent.com/apache/airflow/constraints/${{ env.AIRFLOW_VERSION }}/constraints-${{ env.PYTHON_VERSION }}.txt"
+          pip install pytest pytest-cov
+
+      - name: Prepare DAG folder
+        run: |
+          mkdir -p $AIRFLOW_HOME/dags
+          cp -r airflow_project/dags/* $AIRFLOW_HOME/dags/
+
+      - name: Test DAG syntax
+        run: |
+          python -c "
+          from airflow.models import DagBag
+          dagbag = DagBag(dag_folder='$AIRFLOW_HOME/dags', include_examples=False)
+          if dagbag.import_errors:
+              print('DAG ERRORS:', dagbag.import_errors)
+              exit(1)
+          print(f'✅ {len(dagbag.dags)} DAGs cargados correctamente')
+          "
+
+      - name: Run DAG tests
+        run: |
+          pytest airflow_project/tests -v
+
+  deploy-dev:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+
+    steps:
+      - name: Deploy to Dev
+        run: echo "🚀 Deploying to development environment"
+
+  deploy-prod:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+
+    steps:
+      - name: Deploy to Production
+        run: echo "🎯 Deploying to production environment"
