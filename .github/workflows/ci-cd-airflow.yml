@@ -8,7 +8,7 @@ on:
 
 env:
   AIRFLOW_VERSION: "2.9.3"
-  PYTHON_VERSION: "3.9"
+  PYTHON_VERSION: "3.10"
   AIRFLOW_HOME: /home/runner/airflow
 
 jobs:
@@ -79,3 +79,4 @@ EOF
     steps:
       - name: Deploy to Production
         run: echo "🎯 Deploying to production environment"
+
