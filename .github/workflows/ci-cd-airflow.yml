@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 env:
-  AIRFLOW_VERSION: 2.9.3
+  AIRFLOW_VERSION: "2.9.3"
   PYTHON_VERSION: "3.9"
   AIRFLOW_HOME: /home/runner/airflow
 
@@ -43,9 +43,39 @@ jobs:
           python - <<EOF
 from airflow.models import DagBag
 
-dagbag = DagBag(dag_folder="$AIRFLOW_HOME/dags", include_examples=False)
+dagbag = DagBag(
+    dag_folder="$AIRFLOW_HOME/dags",
+    include_examples=False
+)
 
 if dagbag.import_errors:
     print("❌ DAG ERRORS:")
     for dag, err in dagbag.import_errors.items():
+        print(dag, err)
+    raise SystemExit(1)
 
+print(f"✅ {len(dagbag.dags)} DAGs cargados correctamente")
+EOF
+
+      - name: Run DAG tests
+        run: |
+          pytest airflow_project/tests -v
+
+  deploy-dev:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+
+    steps:
+      - name: Deploy to Dev
+        run: echo "🚀 Deploying to development environment"
+
+  deploy-prod:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+
+    steps:
+      - name: Deploy to Production
+        run: echo "🎯 Deploying to production environment"
