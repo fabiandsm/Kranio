@@ -37,22 +37,14 @@ jobs:
         run: |
           mkdir -p $AIRFLOW_HOME/dags
 
+      - name: Copy DAGs
+        run: |
+          cp -r airflow_project/dags/* $AIRFLOW_HOME/dags/
+
       - name: Validate DAGs (import test)
         run: |
           python - <<EOF
-          from airflow.models import DagBag
+from airflow.models import DagBag
+imp
 
-          dagbag = DagBag(
-              dag_folder="airflow_project/dags",
-              include_examples=False
-          )
-
-          if dagbag.import_errors:
-              print("❌ Errores al importar DAGs:")
-              for dag, err in dagbag.import_errors.items():
-                  print(f"{dag}: {err}")
-              raise SystemExit(1)
-
-          print(f"✅ DAGs cargados correctamente: {len(dagbag.dags)}")
-          EOF
 
