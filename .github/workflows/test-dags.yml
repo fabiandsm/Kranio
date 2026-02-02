@@ -45,6 +45,17 @@ jobs:
         run: |
           python - <<EOF
 from airflow.models import DagBag
-imp
+
+dagbag = DagBag()
+
+if dagbag.import_errors:
+    print("Errores al importar DAGs:")
+    for dag, err in dagbag.import_errors.items():
+        print(dag, err)
+    raise Exception("Import errors in DAGs")
+
+print("DAGs cargados correctamente")
+EOF
+
 
 
