@@ -33,9 +33,15 @@ jobs:
       - name: Set AIRFLOW_HOME
         run: echo "AIRFLOW_HOME=${{ github.workspace }}/airflow" >> $GITHUB_ENV
 
+      - name: Disable example DAGs
+        run: echo "AIRFLOW__CORE__LOAD_EXAMPLES=False" >> $GITHUB_ENV
+
       - name: Create airflow folders
         run: |
           mkdir -p $AIRFLOW_HOME/dags
+
+      - name: Initialize Airflow DB
+        run: airflow db init
 
       - name: Copy DAGs
         run: |
