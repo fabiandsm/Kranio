@@ -43,20 +43,18 @@ jobs:
 
       - name: Validate DAGs (import test)
         run: |
-          python -c "
-from airflow.models import DagBag
+          cat << 'PYTHON_SCRIPT' > validate_dags.py
+          from airflow.models import DagBag
 
-dagbag = DagBag()
+          dagbag = DagBag()
 
-if dagbag.import_errors:
-    print('Errores al importar DAGs:')
-    for dag, err in dagbag.import_errors.items():
-        print(dag, err)
-    raise Exception('Import errors in DAGs')
+          if dagbag.import_errors:
+              print("Errores al importar DAGs:")
+              for dag, err in dagbag.import_errors.items():
+                  print(dag, err)
+              raise Exception("Import errors in DAGs")
 
-print('DAGs cargados correctamente')
-"
+          print("DAGs cargados correctamente")
+          PYTHON_SCRIPT
 
-
-
-
+          python validate_dags.py
