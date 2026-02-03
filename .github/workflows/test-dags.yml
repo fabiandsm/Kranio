@@ -43,19 +43,20 @@ jobs:
 
       - name: Validate DAGs (import test)
         run: |
-          python - <<EOF
+          python -c "
 from airflow.models import DagBag
 
 dagbag = DagBag()
 
 if dagbag.import_errors:
-    print("Errores al importar DAGs:")
+    print('Errores al importar DAGs:')
     for dag, err in dagbag.import_errors.items():
         print(dag, err)
-    raise Exception("Import errors in DAGs")
+    raise Exception('Import errors in DAGs')
 
-print("DAGs cargados correctamente")
-EOF
+print('DAGs cargados correctamente')
+"
+
 
 
 
