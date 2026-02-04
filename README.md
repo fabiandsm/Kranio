@@ -1,101 +1,106 @@
-# 🚀 Kranio -- Data Engineering & Analytics Portfolio
+# 🚀 Kranio --- Data Engineering & Analytics Portfolio
 
 Repositorio personal orientado a demostrar capacidades prácticas en
 **Ingeniería de Datos**, **Ciencia de Datos** y **Analítica**,
 integrando pipelines reales, automatización, testing y buenas prácticas
 de despliegue.
 
-Este repositorio combina **proyectos académicos y desarrollos
-profesionales**, enfocados en la construcción de soluciones
-reproducibles y escalables para procesamiento y análisis de datos.
+Este proyecto combina **desarrollos académicos y soluciones de
+ingeniería** enfocadas en la construcción de pipelines y arquitecturas
+reproducibles, escalables y listas para entornos productivos.
 
 ------------------------------------------------------------------------
 
 ## 🎯 Objetivo del repositorio
 
-Este proyecto funciona como:
+Este repositorio funciona como:
 
--   📌 Portafolio profesional para roles de **Data Engineer**, **Data
-    Scientist** y **Analytics Engineer**.
--   📌 Repositorio académico para ejercicios y evaluaciones técnicas.
+-   📌 Portafolio profesional para roles de **Data Engineer**,
+    **Analytics Engineer** y **Data Scientist**.
 -   📌 Laboratorio personal para experimentar arquitecturas y pipelines
     de datos.
+-   📌 Espacio académico para ejercicios y evaluaciones técnicas.
+
+El foco principal es demostrar **implementaciones reales y buenas
+prácticas de ingeniería de datos**, no solo notebooks exploratorios.
 
 ------------------------------------------------------------------------
 
-## 🧠 Competencias demostradas
+## ⭐ Proyectos y módulos destacados
 
-Este repositorio integra prácticas reales de ingeniería de datos:
+### 🔹 Documentación y Presentación de Pipeline ETL
 
--   Diseño y orquestación de pipelines de datos
--   Automatización de procesos ETL
--   Testing y validación de pipelines
--   Integración de CI/CD con GitHub Actions
--   Arquitectura analítica y modelamiento de datos
--   Optimización de performance en procesamiento de datos
--   Transformación y limpieza de datos con Python y SQL
--   Documentación técnica y reproducibilidad
+Pipeline documentado y preparado para comunicación técnica y ejecutiva,
+incluyendo:
+
+-   Arquitectura del pipeline
+-   Métricas operativas
+-   Runbook operativo
+-   Presentación ejecutiva automatizable
+-   Guía de adopción para usuarios de negocio
+
+📁 Ubicación:
+
+    documentacion_presentacion/
 
 ------------------------------------------------------------------------
 
-## 🏗️ Principales módulos del repositorio
+### 🔹 Airflow --- Orquestación de pipelines
 
-### 🔹 Airflow -- Orquestación de pipelines
+Implementación de DAGs productivos con:
 
-Contiene DAGs para procesamiento automatizado de datos, incluyendo:
-
--   Pipelines con dependencias complejas
+-   Dependencias complejas
 -   Manejo de errores y reintentos
 -   Sensores y operadores personalizados
 -   Monitoreo y alertas
 -   Validación automática de DAGs
 
-Ubicación:
+📁 Ubicación:
 
     airflow_project/
 
 ------------------------------------------------------------------------
 
-### 🔹 Automatización de pipelines
+### 🔹 Automatización de pipelines ETL
 
-Implementación de pipelines ETL y manejo de flujo de datos:
+Procesos de datos con:
 
--   Pipelines con control de dependencias
+-   Control de dependencias
 -   Manejo robusto de errores
--   Ejecución modular de tareas
+-   Ejecución modular
 -   Automatización de procesamiento diario
 
-Ubicación:
+📁 Ubicación:
 
     automatizacion_pipeline/
 
 ------------------------------------------------------------------------
 
-### 🔹 Arquitectura analítica
+### 🔹 Arquitectura Analítica
 
 Diseño conceptual y técnico de arquitecturas de datos:
 
 -   Componentes arquitectónicos
 -   Decisiones técnicas
 -   Requisitos y documentación
--   Modelamiento de datos
+-   Modelamiento analítico
 
-Ubicación:
+📁 Ubicación:
 
     arquitectura_analytics/
 
 ------------------------------------------------------------------------
 
-### 🔹 Bases de datos avanzadas
+### 🔹 Bases de Datos y Data Warehouse
 
 Incluye:
 
--   Diseño de esquemas analíticos
--   Implementación de Data Warehouse
+-   Modelamiento dimensional
 -   Optimización de consultas
 -   Estrategias de indexación
+-   Implementación de esquemas analíticos
 
-Ubicación:
+📁 Ubicación:
 
     bases_datos_avanzadas/
 
@@ -103,14 +108,14 @@ Ubicación:
 
 ### 🔹 ETL con Python y SQL
 
-Procesos completos de:
+Pipelines completos de:
 
 -   Extracción de datos
--   Transformaciones
+-   Transformación
 -   Carga incremental
 -   Manejo de errores y logging
 
-Ubicación:
+📁 Ubicación:
 
     etl_python_sql/
 
@@ -118,13 +123,14 @@ Ubicación:
 
 ### 🔹 Testing de pipelines
 
-Validación de pipelines mediante pruebas automatizadas:
+Pruebas automatizadas para:
 
--   Tests unitarios
--   Validación de estructura
--   Verificación de resultados
+-   Validar DAGs
+-   Verificar dependencias
+-   Detectar errores de configuración
+-   Prevenir fallos productivos
 
-Ubicación:
+📁 Ubicación:
 
     pipeline_testing/
 
@@ -132,13 +138,13 @@ Ubicación:
 
 ### 🔹 Optimización de performance
 
-Análisis y mejora del rendimiento en pipelines:
+Análisis y mejora de rendimiento en pipelines:
 
 -   Identificación de cuellos de botella
 -   Optimización de procesos
--   Mejores prácticas de procesamiento
+-   Mejores prácticas de ejecución
 
-Ubicación:
+📁 Ubicación:
 
     optimizacion_performance/
 
@@ -146,14 +152,14 @@ Ubicación:
 
 ## ⚙️ CI/CD para pipelines de datos
 
-Este repositorio incluye integración continua para validar pipelines
+Se implementa integración continua para validar pipelines
 automáticamente:
 
 -   Validación automática de DAGs
--   Tests ejecutados en cada push
+-   Ejecución de tests en cada push
 -   Prevención de errores antes de despliegue
 
-Workflow ubicado en:
+📁 Workflow:
 
     .github/workflows/
 
@@ -172,14 +178,14 @@ Las pruebas están diseñadas para ser rápidas y confiables.
 
 ------------------------------------------------------------------------
 
-## 🛠️ Tecnologías utilizadas
+## 🛠 Tecnologías utilizadas
 
-Principales herramientas y tecnologías del proyecto:
+Principales herramientas del repositorio:
 
 -   Python
 -   Apache Airflow
 -   SQL
--   SQLite / Data Warehouse
+-   PostgreSQL / SQLite
 -   Git & GitHub
 -   GitHub Actions (CI/CD)
 -   PyTest
@@ -188,9 +194,7 @@ Principales herramientas y tecnologías del proyecto:
 
 ------------------------------------------------------------------------
 
-## ▶️ Cómo ejecutar localmente
-
-Ejemplo básico:
+## ▶️ Ejecución local básica
 
 ``` bash
 git clone https://github.com/fabiandsm/Kranio.git
@@ -203,12 +207,12 @@ pytest
 
 ## 📈 Próximas mejoras
 
-Algunas mejoras planificadas:
+Mejoras planificadas:
 
 -   Integración con contenedores Docker
 -   Despliegue automatizado en entornos productivos
--   Validaciones de calidad de datos
--   Monitoreo avanzado de pipelines
+-   Validaciones avanzadas de calidad de datos
+-   Observabilidad y monitoreo avanzado
 
 ------------------------------------------------------------------------
 
@@ -223,4 +227,5 @@ automatización, analítica avanzada y arquitectura de datos.
 ## ⭐ Nota final
 
 Este repositorio refleja aprendizaje continuo y aplicación práctica de
-conceptos modernos de ingeniería de datos y analítica.
+conceptos modernos de ingeniería de datos y analítica, enfocados en
+soluciones reproducibles y escalables.
