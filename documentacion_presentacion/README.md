@@ -146,3 +146,8 @@ En este ejercicio, el foco está en el README y la documentación técnica, ya q
 Este repositorio forma parte de ejercicios prácticos orientados a reforzar buenas prácticas
 de documentación y comunicación en proyectos de ingeniería de datos.
 
+## Nota sobre herramientas de presentación
+
+La presentación ejecutiva se genera mediante estructuras en Python,
+permitiendo su exportación posterior a herramientas como PowerPoint o
+Google Slides si se requiere.
