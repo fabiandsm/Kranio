@@ -11,23 +11,14 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # -----------------------------------
-      # Checkout código
-      # -----------------------------------
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # -----------------------------------
-      # Python
-      # -----------------------------------
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
-      # -----------------------------------
-      # Instalar Airflow
-      # -----------------------------------
       - name: Install Apache Airflow
         run: |
           python -m pip install --upgrade pip
@@ -36,41 +27,23 @@ jobs:
           CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"
           pip install "apache-airflow==${AIRFLOW_VERSION}" --constraint "${CONSTRAINT_URL}"
 
-      # -----------------------------------
-      # Dependencias comunes de DAGs
-      # Evita errores futuros
-      # -----------------------------------
-      - name: Install DAG common dependencies
+      # ✅ Instalar dependencias del pipeline si existen
+      - name: Install DAG dependencies
         run: |
-          pip install pandas numpy requests
-
-      # -----------------------------------
-      # Instalar requirements opcionales
-      # (si existen en repo)
-      # -----------------------------------
-      - name: Install project requirements (optional)
-        run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
+          if [ -f automatizacion_pipeline/requirements.txt ]; then
+            pip install -r automatizacion_pipeline/requirements.txt
+          else
+            echo "No requirements file found, skipping"
           fi
 
-      # -----------------------------------
-      # AIRFLOW_HOME
-      # -----------------------------------
       - name: Set AIRFLOW_HOME
         run: echo "AIRFLOW_HOME=${{ github.workspace }}/airflow" >> $GITHUB_ENV
 
-      # -----------------------------------
-      # Crear carpetas airflow
-      # -----------------------------------
       - name: Create airflow folders
         run: |
           mkdir -p $AIRFLOW_HOME/dags
           cp automatizacion_pipeline/*.py $AIRFLOW_HOME/dags || true
 
-      # -----------------------------------
-      # Validar DAGs
-      # -----------------------------------
       - name: Validate DAGs (import test)
         run: |
           python - <<EOF
@@ -89,5 +62,3 @@ jobs:
 
           print(f"✅ DAGs cargados correctamente: {len(dagbag.dags)}")
           EOF
-
-
