@@ -229,3 +229,5 @@ automatización, analítica avanzada y arquitectura de datos.
 Este repositorio refleja aprendizaje continuo y aplicación práctica de
 conceptos modernos de ingeniería de datos y analítica, enfocados en
 soluciones reproducibles y escalables.
+---
+Última actualización CI: validación DAGs estable.
