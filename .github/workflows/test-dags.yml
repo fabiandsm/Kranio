@@ -30,6 +30,7 @@ jobs:
       # ✅ Instalar dependencias del pipeline si existen
       - name: Install DAG dependencies
         run: |
+          pip install pandas
           if [ -f automatizacion_pipeline/requirements.txt ]; then
             pip install -r automatizacion_pipeline/requirements.txt
           else
