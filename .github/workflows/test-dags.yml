@@ -27,12 +27,12 @@ jobs:
           CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"
           pip install "apache-airflow==${AIRFLOW_VERSION}" --constraint "${CONSTRAINT_URL}"
 
-      # ✅ Dependencias básicas seguras
+      # Dependencias base comunes
       - name: Install base dependencies
         run: |
           pip install pandas numpy requests
 
-      # ✅ Dependencias específicas si existen
+      # Dependencias del proyecto si existen
       - name: Install pipeline requirements if present
         run: |
           if [ -f automatizacion_pipeline/requirements.txt ]; then
@@ -49,7 +49,7 @@ jobs:
       - name: Create airflow folders
         run: |
           mkdir -p $AIRFLOW_HOME/dags
-          cp automatizacion_pipeline/*.py $AIRFLOW_HOME/dags || true
+          cp automatizacion_pipeline/*.py $AIRFLOW_HOME/dags 2>/dev/null || true
 
       - name: Validate DAGs (import test)
         run: |
@@ -68,5 +68,5 @@ jobs:
               raise SystemExit(1)
 
           print(f"✅ DAGs cargados correctamente: {len(dagbag.dags)}")
+          print("DAGs encontrados:", list(dagbag.dags.keys()))
           EOF
-
