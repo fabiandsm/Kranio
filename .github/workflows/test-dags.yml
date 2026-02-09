@@ -2,89 +2,62 @@ name: CI - Validación DAGs Airflow
 
 on:
   push:
-    branches: ["main", "feature-*"]
+    branches: [ "main", "feature-*" ]
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
 
 jobs:
   validate-dags:
     runs-on: ubuntu-latest
 
     steps:
-      # ----------------------------------------------------
-      # Checkout del repositorio
-      # ----------------------------------------------------
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # ----------------------------------------------------
-      # Python
-      # ----------------------------------------------------
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
-      # ----------------------------------------------------
-      # Instalar Airflow
-      # ----------------------------------------------------
       - name: Install Apache Airflow
         run: |
           python -m pip install --upgrade pip
-
           AIRFLOW_VERSION=2.8.1
           PYTHON_VERSION=3.10
           CONSTRAINT_URL="https://raw.githubusercontent.com/apache/airflow/constraints-${AIRFLOW_VERSION}/constraints-${PYTHON_VERSION}.txt"
-
           pip install "apache-airflow==${AIRFLOW_VERSION}" --constraint "${CONSTRAINT_URL}"
 
-      # ----------------------------------------------------
-      # Instalar dependencias DAG
-      # ----------------------------------------------------
-      - name: Install DAG dependencies
+      # ✅ Dependencias básicas seguras
+      - name: Install base dependencies
         run: |
-          echo "Instalando dependencias base..."
           pip install pandas numpy requests
 
+      # ✅ Dependencias específicas si existen
+      - name: Install pipeline requirements if present
+        run: |
           if [ -f automatizacion_pipeline/requirements.txt ]; then
-            echo "Instalando requirements del pipeline..."
             pip install -r automatizacion_pipeline/requirements.txt
+          elif [ -f requirements.txt ]; then
+            pip install -r requirements.txt
           else
-            echo "No se encontró requirements.txt, se continúa."
+            echo "No requirements file found"
           fi
 
-      # ----------------------------------------------------
-      # Configurar AIRFLOW_HOME
-      # ----------------------------------------------------
       - name: Set AIRFLOW_HOME
         run: echo "AIRFLOW_HOME=${{ github.workspace }}/airflow" >> $GITHUB_ENV
 
-      # ----------------------------------------------------
-      # Crear estructura airflow
-      # ----------------------------------------------------
       - name: Create airflow folders
         run: |
           mkdir -p $AIRFLOW_HOME/dags
+          cp automatizacion_pipeline/*.py $AIRFLOW_HOME/dags || true
 
-          if [ -d automatizacion_pipeline ]; then
-            cp automatizacion_pipeline/*.py $AIRFLOW_HOME/dags || true
-          else
-            echo "Carpeta automatizacion_pipeline no encontrada"
-          fi
-
-      # ----------------------------------------------------
-      # Validar DAGs
-      # ----------------------------------------------------
       - name: Validate DAGs (import test)
         run: |
           python - <<EOF
           from airflow.models import DagBag
 
-          dag_folder = "${{ github.workspace }}/automatizacion_pipeline"
-          print(f"Validando DAGs en: {dag_folder}")
-
           dagbag = DagBag(
-              dag_folder=dag_folder,
+              dag_folder="${{ github.workspace }}/automatizacion_pipeline",
               include_examples=False
           )
 
@@ -96,3 +69,4 @@ jobs:
 
           print(f"✅ DAGs cargados correctamente: {len(dagbag.dags)}")
           EOF
+
