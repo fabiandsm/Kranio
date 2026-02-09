@@ -6,6 +6,9 @@ from datetime import datetime, timedelta
 import random
 
 
+# ----------------------------
+# Funciones
+# ----------------------------
 def validar_calidad_datos(**context):
     """Simular validación de calidad"""
     calidad = random.choice(['alta', 'media', 'baja'])
@@ -36,13 +39,8 @@ def procesamiento_completo():
     return "Procesado completo"
 
 
-def procesamiento_pesado():
-    print("Procesamiento intensivo para datos complejos")
-    return "Procesado intensivo"
-
-
 # ----------------------------
-# Configurar DAG
+# DAG
 # ----------------------------
 dag = DAG(
     'pipeline_avanzado_complejo',
@@ -57,28 +55,24 @@ dag = DAG(
     }
 )
 
+
 # ----------------------------
-# Inicio pipeline
+# Tasks base
 # ----------------------------
 inicio = DummyOperator(task_id='inicio', dag=dag)
 
-# Validación
 validar = PythonOperator(
     task_id='validar_calidad',
     python_callable=validar_calidad_datos,
     dag=dag
 )
 
-# Decisión
 decidir = BranchPythonOperator(
     task_id='decidir_ruta',
     python_callable=decidir_procesamiento,
     dag=dag
 )
 
-# ----------------------------
-# Rutas alternativas
-# ----------------------------
 ruta_rapida = PythonOperator(
     task_id='procesamiento_rapido',
     python_callable=procesamiento_rapido,
@@ -91,47 +85,32 @@ ruta_completa = PythonOperator(
     dag=dag
 )
 
+
 # ----------------------------
-# TaskGroup procesamiento pesado
+# TaskGroup CORREGIDO
 # ----------------------------
 with TaskGroup('procesamiento_pesado', dag=dag) as procesamiento_group:
 
-    paso1 = PythonOperator(
-        task_id='paso1',
-        python_callable=lambda: print("Paso 1"),
-        dag=dag
-    )
+    paso1 = DummyOperator(task_id='paso1', dag=dag)
+    paso2 = DummyOperator(task_id='paso2', dag=dag)
+    paso3 = DummyOperator(task_id='paso3', dag=dag)
 
-    paso2 = PythonOperator(
-        task_id='paso2',
-        python_callable=lambda: print("Paso 2"),
-        dag=dag
-    )
+    # relaciones internas
+    paso1 >> paso2 >> paso3
 
-    paso3 = PythonOperator(
-        task_id='paso3',
-        python_callable=lambda: print("Paso 3"),
-        dag=dag
-    )
-
-# Dependencias internas del grupo
-paso1 >> paso2 >> paso3
 
 # ----------------------------
-# Unión y fin
+# Unión y final
 # ----------------------------
 union = DummyOperator(task_id='union_rutas', dag=dag)
 fin = DummyOperator(task_id='fin', dag=dag)
 
+
 # ----------------------------
-# Dependencias principales
+# Dependencias
 # ----------------------------
 inicio >> validar >> decidir
 
-decidir >> [
-    ruta_rapida,
-    ruta_completa,
-    procesamiento_group
-]
+decidir >> [ruta_rapida, ruta_completa, procesamiento_group]
 
 [ruta_rapida, ruta_completa, procesamiento_group] >> union >> fin
